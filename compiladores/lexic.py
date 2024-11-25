@@ -33,6 +33,8 @@ palavras_reservadas = {
 
 #Lista de tokens aceitos pelo analisador léxico
 tokens = [
+    'PROGRAM',      # PROGRAM
+    'STRING',       # STRING
     'IDENTIFIER', # Identificador
     'NUMBER', # Número inteiro
     'PLUS', # Soma +
@@ -62,6 +64,8 @@ tokens = [
 ]+ list(palavras_reservadas.values())
 
 # Expressões regulares para tokens simples
+t_PROGRAM = r'PROGRAM'  
+t_STRING = r'\".*?\"'
 t_PLUS = r'\+'
 t_MINUS = r'-'
 t_TIMES = r'\*'
@@ -122,10 +126,13 @@ def main():
         raise SystemExit(1)
 
     filename = sys.argv[1]
+    output_filename = 'output_lexer.out'
     with open(filename) as f:
         lexer.input(f.read())
-        for tok in iter(lexer.token, None):
-            print(tok)
+        with open(output_filename, 'w') as out_file:
+            for tok in iter(lexer.token, None):
+                out_file.write(str(tok) + '\n')
+            
 
 if __name__ == '__main__':
     main()
