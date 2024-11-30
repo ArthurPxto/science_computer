@@ -1,6 +1,7 @@
 import sys
 import ply.lex as lex
 
+
 # dicionário de palavras reservadas
 palavras_reservadas = {
     'const': 'CONST',
@@ -29,67 +30,25 @@ palavras_reservadas = {
     'true': 'TRUE',
     'and': 'AND',
     'or': 'OR',
+    'array': 'ARRAY',
 }
 
-#Lista de tokens aceitos pelo analisador léxico
-tokens = [
-    'PROGRAM',      # PROGRAM
-    'STRING',       # STRING
-    'IDENTIFIER', # Identificador
-    'NUMBER', # Número inteiro
-    'PLUS', # Soma +
-    'MINUS', # Subtração -
-    'TIMES', # Multiplicação *
-    'DIVIDE', # Divisão /
-    'EQUALS', # Igual ==
-    'NOT_EQUALS', # Diferente !=
-    'LESS', # Menor que <
-    'GREATER', # Maior que >
-    'LESS_EQUALS', # Menor ou igual <=
-    'GREATER_EQUALS', # Maior ou igual >=
-    'ASSIGN', # Atribuição :=
-    'ATRIBUITTION', # Atribuição =
-    'LPAREN', # Parenteses esquerdo (
-    'RPAREN', # Parenteses direito )
-    'LBRACE', # Chave esquerda {
-    'RBRACE', # Chave direita }
-    'LBRAKET', # Colchete esquerdo [
-    'RBRAKET', # Colchete direito ]
-    'SEMICOLON', # Ponto e vírgula ;
-    'COMMA', # Vírgula ,
-    'COLON', # Dois pontos :
-    'DOT', # Ponto .
-    'DOUBLE_DOT', # Dois pontos :
-    'BRAKELINE', # Quebra de linha \n
-]+ list(palavras_reservadas.values())
+# literais que são tokens
+literals = ['+','-','*','/','=',',',';',':','.','[',']','(',')']
 
-# Expressões regulares para tokens simples
-t_PROGRAM = r'PROGRAM'  
-t_STRING = r'\".*?\"'
-t_PLUS = r'\+'
-t_MINUS = r'-'
-t_TIMES = r'\*'
-t_DIVIDE = r'/'
-t_EQUALS = r'=='
-t_NOT_EQUALS = r'!='
-t_LESS = r'<'
-t_GREATER = r'>'
-t_LESS_EQUALS = r'<='
-t_GREATER_EQUALS = r'>='
-t_ASSIGN = r':='
-t_LPAREN = r'\('
-t_RPAREN = r'\)'
-t_LBRACE = r'\{'
-t_RBRACE = r'\}'
-t_LBRAKET = r'\['
-t_RBRAKET = r'\]'
-t_SEMICOLON = r';'
-t_COMMA = r','
-t_COLON = r':'
-t_DOT = r'\.'
-t_DOUBLE_DOT = r':'
-t_BRAKELINE = r'\n'
-t_ATRIBUITTION = r'='
+
+tokens = [
+    'ID',
+    'NUMBER',
+    'WORD',
+    'ATRIBUITTION',
+    'COMPARING', 
+] + list(palavras_reservadas.values())
+
+# expressões regulares para tokens
+t_ATRIBUITTION = r':='
+t_COMPARING = r'<=|>=|==|!=|<|>'
+
 
 # removendo as quebras de linha
 def t_newline(t):
@@ -97,15 +56,21 @@ def t_newline(t):
     t.lexer.lineno += len(t.value)
 
 # Expressão regular para identificador
-def t_IDENTIFIER(t):
+def t_ID(t):
     r'[a-zA-Z_][a-zA-Z_0-9]*'
-    t.type = palavras_reservadas.get(t.value, 'IDENTIFIER')
+    t.type = palavras_reservadas.get(t.value, 'ID')
+    t.value = str(t.value)
     return t
 
 # Expressão regular para número inteiro
 def t_NUMBER(t):
-    r'\d+'
-    t.value = int(t.value)
+    r'\d+(\.\d+)?'
+    t.value = float(t.value) if '.' in t.value else int(t.value)
+    return t
+
+def t_WORD(t):
+    r'"[A-Za-z0-9\s]*"'
+    t.value = str(t.value)
     return t
 
 # ignorar espaços em branco
@@ -118,6 +83,13 @@ def t_error(t):
 
 # build the lexer
 lexer = lex.lex()
+
+class Token():
+    def __init__(self, token):
+        self.tipo = tok.type
+        self.valor = tok.value
+        self.linha = tok.lineno
+analisados = list()
 
 # Lendo o arquivo de entrada
 def main():
