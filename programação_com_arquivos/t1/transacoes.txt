@@ -1,0 +1,3 @@
+Operação	Código	Nome	Quantidade
+A 		 1 		 pao 		 23 
+I 		 2 		 lampada 		 2 
